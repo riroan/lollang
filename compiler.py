@@ -54,6 +54,12 @@ class Compiler:
             for code in self.out:
                 file.write(code+"\n")
     
+    def checkComment(self, code):
+        ix = code.find("잠만")
+        if ix>=0:
+            code = code[ix:]
+        return code
+    
     def getType(self, code):
         if "갱좀" in code:
             return Keyword.VAR_PRINT
@@ -118,6 +124,7 @@ class Compiler:
         print(f"변수 {elements}({[self.var.get(i) for i in elements]}) 출력!!")
     
     def compileLine(self, code):
+        code = self.checkComment(code)
         if self.isEmptyLine(code):
             return
         TYPE = self.getType(code)
