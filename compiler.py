@@ -49,10 +49,10 @@ class Compiler:
         self.indent = 0
         self.var = Variable()
     
-    def save(self):
-        with open("a.py", "w") as file:
+    def save(self, path = "a.py"):
+        with open(path, "w") as file:
             for code in self.out:
-                file.write(code)
+                file.write(code+"\n")
     
     def getType(self, code):
         if "갱좀" in code:
@@ -71,6 +71,13 @@ class Compiler:
             return Keyword.CLOSE
         if "잠만" in code:
             return Keyword.COMMENT
+        
+    def varCheck(self, elements):
+        for element in elements:
+            if not self.var.get(element):
+                print(">> Error : 그런 변수명이 없습니다.")
+                return False
+        return True
     
     def varDeclare(self, code):
         code = code.replace(" ", "")
@@ -80,10 +87,11 @@ class Compiler:
     
     def varInput(self, code):
         elements = code.split()[:-1]
-        for element in elements:
-            if not self.var.get(element):
-                print(">> Error : 그런 변수명이 없습니다.")
-                return
+        
+        if not self.varCheck(elements):
+            # 컴파일 에러
+            pass
+        
         if len(elements) == 1:
             out = f"{self.var.get(elements[0])} = input()"
         else:
@@ -94,7 +102,20 @@ class Compiler:
         print(f"변수 {elements}({[self.var.get(i) for i in elements]}) 입력!!")
     
     def varPrint(self, code):
-        pass
+        out = "print("
+        elements = code.split()[:-1]
+        if not self.varCheck(elements):
+            # 컴파일 에러
+            pass
+        out+=f"{self.var.get(elements[0])}"
+        if len(elements) == 1:
+            out+=")"
+        else:
+            for element in elements[1:]:
+                out+=f", {self.var.get(element)}"
+            out+=")"
+        self.out.append(out)
+        print(f"변수 {elements}({[self.var.get(i) for i in elements]}) 출력!!")
     
     def compileLine(self, code):
         if self.isEmptyLine(code):
@@ -127,9 +148,18 @@ class Compiler:
         with open(path, "r", encoding="utf-8") as file:
             codelines = [i.rstrip() for i in file.readlines()]
             self.compile(codelines)
+    
+    def run(self, path = "a.py"):
+        try:
+            exec(open(path).read())
+        except:
+            print("소환사 한명이 게임을 종료했습니다.")
+            print(">> 런타임 에러")
 
 
 if __name__ == "__main__":
     compiler = Compiler()
     compiler.compileFile("main.lo")
     compiler.save()
+    print(compiler.out)
+    compiler.run()
