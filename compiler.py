@@ -1,80 +1,6 @@
-from ast import Lt
-from enum import Enum, auto
-from tkinter import LEFT
-
-class Keyword(Enum):
-    BLANK = auto()
-    VAR_DECLARE = auto()
-    VAR_ASSIGN = auto()
-    VAR_PRINT = auto()
-    VAR_INPUT = auto()
-    IF = auto()
-    ELIF = auto()
-    ELSE = auto()
-    WHILE = auto()
-    FUNCTION = auto()
-    FOR = auto()
-    SWAP = auto()
-    NEWLINE = auto()
-    BREAK = auto()
-    CONTINUE = auto()
-    
-    COMMENT = auto()
-    CLOSE = auto() # loop out
-    
-    LT = auto() # <
-    LE = auto() # <=
-    GT = auto() # >
-    GE = auto() # >=
-    
-class TYPE(Enum): # 자료형
-    INT = auto()
-    STR = auto()
-    
-class Operator:
-    GT = "ㄱ"
-    GE = "ㅋ"
-    LT = "ㄷ"
-    LE = "ㅌ"
-    ONE = "ㅠ"
-    ADD = "ㅜ"
-    SUB = "ㅡ"
-    MUL = "ㅓ"
-    DIV = "ㅏ"
-    INT_DIV = "ㅕ"
-    REM = "ㅑ"
-    op = [">",">=","<","<=","+","-","*","/","//","%"]
-        
-    @staticmethod
-    def getOp():
-        return [Operator.GT, Operator.GE, Operator.LT, Operator.LE, Operator.ADD, Operator.SUB,Operator.MUL,Operator.DIV,Operator.INT_DIV,Operator.REM]
-
-class Variable:
-    def __init__(self):
-        self.var = dict()
-    
-    def insert(self, name):
-        try:
-            self.var[name]
-        except:
-            self.var[name] = [f"var_{len(self.var)}", TYPE.INT]
-    
-    def get(self, name):
-        try:
-            return self.var[name][0]
-        except:
-            print(f">> Error : 그런 변수명이 없습니다. {name}")
-            return False
-    
-    def getType(self, name):
-        try:
-            return self.var[name][1]
-        except:
-            print(f">> Error : 그런 변수명이 없습니다. {name}")
-            return False
-    
-    def setType(self, name, newType):
-        self.var[name][1] = newType
+from keywords import Keyword
+from operators import Operator
+from variable import Variable, TYPE
 
 class Compiler:
     def __init__(self):
@@ -331,10 +257,12 @@ class Compiler:
                 continue
             self.compileLine(code)
     
-    def compileFile(self, path):
+    def compileFile(self, path, outPath = "out.py"):
         with open(path, "r", encoding="utf-8") as file:
             codelines = [i.rstrip() for i in file.readlines()]
             self.compile(codelines)
+        self.save(outPath)
+        self.run(outPath)
     
     def run(self, path = "out.py"):
         try:
@@ -344,8 +272,8 @@ class Compiler:
             print(">> 런타임 에러")
 
 
-if __name__ == "__main__":
-    compiler = Compiler()
-    compiler.compileFile("example/while.lo")
-    compiler.save()
-    compiler.run()
+# if __name__ == "__main__":
+#     compiler = Compiler()
+#     compiler.compileFile("example/while.lo")
+#     compiler.save()
+#     compiler.run()
