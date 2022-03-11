@@ -1,4 +1,6 @@
+from ast import Lt
 from enum import Enum, auto
+from tkinter import LEFT
 
 class Keyword(Enum):
     BLANK = auto()
@@ -28,6 +30,10 @@ class TYPE(Enum): # 자료형
     STR = auto()
     
 class Operator:
+    GT = "ㄱ"
+    GE = "ㅋ"
+    LT = "ㄷ"
+    LE = "ㅌ"
     ONE = "ㅠ"
     ADD = "ㅜ"
     SUB = "ㅡ"
@@ -35,11 +41,11 @@ class Operator:
     DIV = "ㅏ"
     INT_DIV = "ㅕ"
     REM = "ㅑ"
-    op = ["+","-","*","/","//","%"]
+    op = [">",">=","<","<=","+","-","*","/","//","%"]
         
     @staticmethod
     def getOp():
-        return [Operator.ADD, Operator.SUB,Operator.MUL,Operator.DIV,Operator.INT_DIV,Operator.REM]
+        return [Operator.GT, Operator.GE, Operator.LT, Operator.LE, Operator.ADD, Operator.SUB,Operator.MUL,Operator.DIV,Operator.INT_DIV,Operator.REM]
 
 class Variable:
     def __init__(self):
@@ -78,8 +84,8 @@ class Compiler:
         self.indent = 0
         self.var = Variable()
         
-    def getNewLine(self):
-        return "\t"*self.indent
+    def getNewLine(self, elseFlag = False):
+        return "\t"*(self.indent - int(elseFlag))
     
     def save(self, path = "a.py"):
         with open(path, "w") as file:
@@ -101,6 +107,8 @@ class Compiler:
             return Keyword.VAR_PRINT
         if "리쉬좀" in code:
             return Keyword.VAR_INPUT
+        if "근데저기" in code:
+            return Keyword.ELIF
         if "저기" in code:
             return Keyword.IF
         if "아니" in code:
@@ -115,6 +123,8 @@ class Compiler:
             return Keyword.VAR_DECLARE
         if "뭐하냐고" in code:
             return Keyword.NEWLINE
+        if "근데" in code:
+            return Keyword.ELSE
     
     def removeDeclare(self, elements): # 선언과 동시에 입력, 대입시 "님" 제거
         return [element[:-1] if element[-1] == '님' else element for element in elements]
@@ -239,12 +249,28 @@ class Compiler:
         self.indent+=1
         self.out.append(out)
     
+    def ifStmt(self, code, elifFlag = False):
+        out = self.getNewLine(elifFlag)
+        elements = code.split(" ")[1:]
+        
+        if elifFlag:
+            out+=f"elif {self.makeAssignStmt(elements[0])}:"
+        else:
+            out+=f"if {self.makeAssignStmt(elements[0])}:"
+            self.indent+=1
+        self.out.append(out)
+    
     def closeStmt(self):
         self.indent-=1
         
     def newLine(self):
         out = self.getNewLine()
         out += "print()"
+        self.out.append(out)
+        
+    def elseStmt(self):
+        out = self.getNewLine(True)
+        out+="else:"
         self.out.append(out)
     
     def compileLine(self, code):
@@ -268,6 +294,12 @@ class Compiler:
             self.closeStmt()
         if TYPE == Keyword.NEWLINE:
             self.newLine()
+        if TYPE == Keyword.IF:
+            self.ifStmt(code)
+        if TYPE == Keyword.ELSE:
+            self.elseStmt()
+        if TYPE == Keyword.ELIF:
+            self.ifStmt(code, True)
     
     def isEmptyLine(self, code):
         for i in code:
@@ -300,6 +332,6 @@ class Compiler:
 
 if __name__ == "__main__":
     compiler = Compiler()
-    compiler.compileFile("gugudan.lo")
+    compiler.compileFile("example/if.lo")
     compiler.save()
     compiler.run()
