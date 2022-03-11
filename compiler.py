@@ -294,5 +294,4 @@ if __name__ == "__main__":
     compiler = Compiler()
     compiler.compileFile("gugudan.lo")
     compiler.save()
-    print(compiler.out)
     compiler.run()
