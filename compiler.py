@@ -155,16 +155,24 @@ class Compiler:
     def varPrint(self, code):
         out = self.getNewLine()
         out += "print("
-        elements = code.split()[:-1]
-        if not self.varCheck(elements):
-            # 컴파일 에러
-            pass
-        out+=f"{self.var.get(elements[0])}"
+        elements = code.split()
+        strFlag = elements[-1] == "갱좀요"
+        elements = elements[:-1]
+        # if not self.varCheck(elements):
+        #     # 컴파일 에러
+        #     pass
+        if strFlag:
+            out+=f"chr({self.makeAssignStmt(elements[0])})"
+        else:
+            out+=f"{self.makeAssignStmt(elements[0])}"
         if len(elements) == 1:
             out+=",end='')"
         else:
             for element in elements[1:]:
-                out+=f", {self.var.get(element)}"
+                if strFlag:
+                    out+=f", chr({self.makeAssignStmt(element)})"
+                else:
+                    out+=f", {self.makeAssignStmt(element)}"
             out+=",end='')"
         self.out.append(out)
     
