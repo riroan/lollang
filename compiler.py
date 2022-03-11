@@ -77,19 +77,34 @@ class Compiler:
     
     def varInput(self, code):
         out = self.getNewLine()
-        elements = code.split()[:-1]
+        elements = code.split()
+        strFlag = elements[-1] == "리쉬좀요"
+        elements = elements[:-1]
         
         if not self.varCheck(elements):
             # 컴파일 에러
             print(">> 변수가 없는게 있습니다!!")
             pass
         elements = self.removeDeclare(elements)
+        for element in elements:
+            if self.var.getType(element) == TYPE.INT and strFlag:
+                self.var.setType(element, TYPE.STR)
+            if self.var.getType(element) == TYPE.STR and not strFlag:
+                self.var.setType(element, TYPE.INT)
         if len(elements) == 1:
-            out += f"{self.var.get(elements[0])} = int(input())"
+            if strFlag:
+                out += f"{self.var.get(elements[0])} = input()"
+            else:
+                out += f"{self.var.get(elements[0])} = int(input())"
         else:
             out += f"{self.var.get(elements[0])}"
             for element in elements[1:]:
-                out += f", {self.var.get(element)} = map(int, input().split())"
+
+                out += f", {self.var.get(element)}"
+            if strFlag:
+                out+=" = input().split()"
+            else:
+                out+=" = map(int, input().split())"
         self.out.append(out)
     
     def varPrint(self, code):
