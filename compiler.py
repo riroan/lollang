@@ -16,6 +16,8 @@ class Keyword(Enum):
     FOR = auto()
     SWAP = auto()
     NEWLINE = auto()
+    BREAK = auto()
+    CONTINUE = auto()
     
     COMMENT = auto()
     CLOSE = auto() # loop out
@@ -87,7 +89,7 @@ class Compiler:
     def getNewLine(self, elseFlag = False):
         return "\t"*(self.indent - int(elseFlag))
     
-    def save(self, path = "a.py"):
+    def save(self, path = "out.py"):
         with open(path, "w") as file:
             for code in self.out:
                 file.write(code+"\n")
@@ -125,6 +127,8 @@ class Compiler:
             return Keyword.NEWLINE
         if "근데" in code:
             return Keyword.ELSE
+        if "그니까" in code:
+            return Keyword.WHILE
     
     def removeDeclare(self, elements): # 선언과 동시에 입력, 대입시 "님" 제거
         return [element[:-1] if element[-1] == '님' else element for element in elements]
@@ -273,6 +277,14 @@ class Compiler:
         out+="else:"
         self.out.append(out)
     
+    def whileStmt(self, code):
+        out = self.getNewLine()
+        elements = code.split(" ")[1:]
+        
+        out+=f"while {self.makeAssignStmt(elements[0])}:"
+        self.indent+=1
+        self.out.append(out)
+    
     def compileLine(self, code):
         code = self.checkComment(code)
         if self.isEmptyLine(code):
@@ -300,6 +312,8 @@ class Compiler:
             self.elseStmt()
         if TYPE == Keyword.ELIF:
             self.ifStmt(code, True)
+        if TYPE == Keyword.WHILE:
+            self.whileStmt(code)
     
     def isEmptyLine(self, code):
         for i in code:
@@ -322,7 +336,7 @@ class Compiler:
             codelines = [i.rstrip() for i in file.readlines()]
             self.compile(codelines)
     
-    def run(self, path = "a.py"):
+    def run(self, path = "out.py"):
         try:
             exec(open(path).read())
         except:
@@ -332,6 +346,6 @@ class Compiler:
 
 if __name__ == "__main__":
     compiler = Compiler()
-    compiler.compileFile("example/if.lo")
+    compiler.compileFile("example/while.lo")
     compiler.save()
     compiler.run()
