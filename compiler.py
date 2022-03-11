@@ -12,6 +12,7 @@ class Keyword(Enum):
     WHILE = auto()
     FUNCTION = auto()
     FOR = auto()
+    SWAP = auto()
     
     COMMENT = auto()
     CLOSE = auto() # loop out
@@ -20,6 +21,24 @@ class Keyword(Enum):
     LE = auto() # <=
     GT = auto() # >
     GE = auto() # >=
+    
+class TYPE(Enum): # 자료형
+    INT = auto()
+    STR = auto()
+    
+class Operator:
+    ONE = "ㅠ"
+    ADD = "ㅜ"
+    SUB = "ㅡ"
+    MUL = "ㅓ"
+    DIV = "ㅏ"
+    INT_DIV = "ㅕ"
+    REM = "ㅑ"
+    op = ["+","-","*","/","//","%"]
+    
+    @staticmethod
+    def getOp():
+        return [Operator.ADD, Operator.SUB,Operator.MUL,Operator.DIV,Operator.INT_DIV,Operator.REM]
 
 class Variable:
     def __init__(self):
@@ -29,14 +48,24 @@ class Variable:
         try:
             self.var[name]
         except:
-            self.var[name] = f"var_{len(self.var)}"
+            self.var[name] = [f"var_{len(self.var)}", TYPE.INT]
     
     def get(self, name):
         try:
-            return self.var[name]
+            return self.var[name][0]
         except:
-            print(">> Error : 그런 변수명이 없습니다.")
+            print(f">> Error : 그런 변수명이 없습니다. {name}")
             return False
+    
+    def getType(self, name):
+        try:
+            return self.var[name][1]
+        except:
+            print(f">> Error : 그런 변수명이 없습니다. {name}")
+            return False
+    
+    def setType(self, name, newType):
+        self.var[name][1] = newType
 
 
 class Compiler:
@@ -48,6 +77,9 @@ class Compiler:
         self.valid = False
         self.indent = 0
         self.var = Variable()
+        
+    def getNewLine(self):
+        return "\t"*self.indent
     
     def save(self, path = "a.py"):
         with open(path, "w") as file:
@@ -61,6 +93,10 @@ class Compiler:
         return code
     
     def getType(self, code):
+        if "스왑좀" in code:
+            return Keyword.SWAP
+        if "캐리좀" in code:
+            return Keyword.VAR_ASSIGN
         if "갱좀" in code:
             return Keyword.VAR_PRINT
         if "리쉬좀" in code:
@@ -71,44 +107,54 @@ class Compiler:
             return Keyword.FUNCTION
         if "님아" in code:
             return Keyword.FOR
-        if "님" in code:
-            return Keyword.VAR_DECLARE
         if "뭐함?" in code:
             return Keyword.CLOSE
         if "잠만" in code:
             return Keyword.COMMENT
+        if "님" in code:
+            return Keyword.VAR_DECLARE
+    
+    def removeDeclare(self, elements): # 선언과 동시에 입력, 대입시 "님" 제거
+        return [element[:-1] if element[-1] == '님' else element for element in elements]
         
     def varCheck(self, elements):
         for element in elements:
-            if not self.var.get(element):
-                print(">> Error : 그런 변수명이 없습니다.")
+            if element[-1] == "님":
+                self.var.insert(element[:-1])
+            elif not self.var.get(element):
+                print(f">> Error : 그런 변수명이 없습니다. {element}")
                 return False
         return True
     
     def varDeclare(self, code):
+        out = self.getNewLine()
         code = code.replace(" ", "")
         name = code[:code.find("님")]
         self.var.insert(name)
+        self.out.append(out + f"{self.var.get(name)} = 0")
         print(f"변수 {name}({self.var.get(name)}) 선언!!")
     
     def varInput(self, code):
+        out = self.getNewLine()
         elements = code.split()[:-1]
         
         if not self.varCheck(elements):
             # 컴파일 에러
+            print(">> 변수가 없는게 있습니다!!")
             pass
-        
+        elements = self.removeDeclare(elements)
         if len(elements) == 1:
-            out = f"{self.var.get(elements[0])} = input()"
+            out += f"{self.var.get(elements[0])} = int(input())"
         else:
-            out = f"{self.var.get(elements[0])}"
+            out += f"{self.var.get(elements[0])}"
             for element in elements[1:]:
-                out += f", {self.var.get(element)} = map(str, input().split())"
+                out += f", {self.var.get(element)} = map(int, input().split())"
         self.out.append(out)
         print(f"변수 {elements}({[self.var.get(i) for i in elements]}) 입력!!")
     
     def varPrint(self, code):
-        out = "print("
+        out = self.getNewLine()
+        out += "print("
         elements = code.split()[:-1]
         if not self.varCheck(elements):
             # 컴파일 에러
@@ -123,6 +169,60 @@ class Compiler:
         self.out.append(out)
         print(f"변수 {elements}({[self.var.get(i) for i in elements]}) 출력!!")
     
+    def varSwap(self, code):
+        elements = code.split()[:-1]
+        if not self.varCheck(elements):
+            # 컴파일 에러
+            pass
+        for element in elements:
+            out = self.getNewLine()
+            var_type = self.var.getType(element)
+            if var_type == TYPE.INT:
+                out += f"{self.var.get(element)} = chr({self.var.get(element)})"
+                self.var.setType(element, TYPE.STR)
+            elif var_type == TYPE.STR:
+                out += f"{self.var.get(element)} = ord({self.var.get(element)})"
+                self.var.setType(element, TYPE.INT)
+            else:
+                print(">> 잘못된 타입입니다.")
+            self.out.append(out)
+            
+    def makeAssignStmt(self, code, ix = 0):
+        stmt = ""
+        op = Operator.getOp()
+        if ix == len(op):
+            element = code
+            l = len(element)
+            if element[0] == Operator.ONE:
+                if element.count(Operator.ONE) != l:
+                    # 컴파일에러
+                    print(">> 변수 대입이 잘못되었습니다.")
+                    pass
+                else:
+                    stmt+=f"{l}"
+            else:
+                stmt+=f"{self.var.get(element)}"
+            return stmt
+            
+        elements = code.split(op[ix])
+        l = len(elements)
+        for i, element in enumerate(elements):
+            stmt += self.makeAssignStmt(element, ix+1)
+            if i < l-1:
+                stmt += Operator.op[ix]
+        return stmt
+
+    def varAssign(self, code):
+        out = self.getNewLine()
+        elements = code.split(" ")
+        if not self.varCheck([elements[0]]):
+            # 컴파일 에러
+            pass
+        variable = self.removeDeclare([elements[0]])[0]
+        out += f"{self.var.get(variable)} = "
+        out += self.makeAssignStmt(elements[-1])
+        self.out.append(out)
+    
     def compileLine(self, code):
         code = self.checkComment(code)
         if self.isEmptyLine(code):
@@ -130,10 +230,15 @@ class Compiler:
         TYPE = self.getType(code)
         if TYPE == Keyword.VAR_DECLARE:
             self.varDeclare(code)
+        if TYPE == Keyword.VAR_ASSIGN:
+            self.varAssign(code)
         if TYPE == Keyword.VAR_PRINT:
             self.varPrint(code)
         if TYPE == Keyword.VAR_INPUT:
             self.varInput(code)
+        if TYPE == Keyword.SWAP: # 아스키를 숫자로 변환
+            self.varSwap(code)
+        
     
     def isEmptyLine(self, code):
         for i in code:
