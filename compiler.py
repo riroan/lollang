@@ -27,6 +27,10 @@ class Compiler:
         return code
     
     def getType(self, code):
+        if "오라고" in code:
+            return Keyword.CONTINUE
+        if "가라고" in code:
+            return Keyword.BREAK
         if "스왑좀" in code:
             return Keyword.SWAP
         if "캐리좀" in code:
@@ -152,6 +156,7 @@ class Compiler:
     def makeAssignStmt(self, code, ix = 0):
         stmt = ""
         op = Operator.getOp()
+        
         if ix == len(op):
             element = code
             l = len(element)
@@ -231,11 +236,25 @@ class Compiler:
         self.indent+=1
         self.out.append(out)
     
+    def continueStmt(self):
+        out = self.getNewLine()
+        out += "continue"
+        self.out.append(out)
+    
+    def breakStmt(self):
+        out = self.getNewLine()
+        out += "break"
+        self.out.append(out)
+    
     def compileLine(self, code):
         code = self.checkComment(code)
         if self.isEmptyLine(code):
             return
         TYPE = self.getType(code)
+        if TYPE == Keyword.CONTINUE:
+            self.continueStmt()
+        if TYPE == Keyword.BREAK:
+            self.breakStmt()
         if TYPE == Keyword.VAR_DECLARE:
             self.varDeclare(code)
         if TYPE == Keyword.VAR_ASSIGN:
@@ -287,9 +306,7 @@ class Compiler:
             return
         codes = codes[1:-1]
         for code in codes:
-            if self.isEmptyLine(code):
-                continue
-            self.compileLine(code)
+            self.compileLine(code.lstrip())
     
     def compileFile(self, path, outPath = "out.py"):
         with open(path, "r", encoding="utf-8") as file:
