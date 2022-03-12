@@ -5,6 +5,8 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/riroan/lollang.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/riroan/lollang/alerts/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<img src="images/icon.ico" alt="lol-lang icon">
+
 롤랭 컴파일러
 
 롤의 각종 유행어(?)들을 조합해 만들었습니다.
