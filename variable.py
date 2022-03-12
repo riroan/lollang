@@ -11,20 +11,20 @@ class Variable:
     def insert(self, name):
         try:
             self.var[name]
-        except:
+        except KeyError:
             self.var[name] = [f"var_{len(self.var)}", TYPE.INT]
     
     def get(self, name):
         try:
             return self.var[name][0]
-        except:
+        except KeyError:
             print(f">> Error : 그런 변수명이 없습니다. {name}")
             return False
     
     def getType(self, name):
         try:
             return self.var[name][1]
-        except:
+        except KeyError:
             print(f">> Error : 그런 변수명이 없습니다. {name}")
             return False
     

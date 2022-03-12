@@ -84,7 +84,7 @@ class Compiler:
         if not self.varCheck(elements):
             # 컴파일 에러
             print(">> 변수가 없는게 있습니다!!")
-            pass
+            
         elements = self.removeDeclare(elements)
         for element in elements:
             if self.var.getType(element) == TYPE.INT and strFlag:
@@ -159,7 +159,6 @@ class Compiler:
                 if element.count(Operator.ONE) != l:
                     # 컴파일에러
                     print(">> 변수 대입이 잘못되었습니다.")
-                    pass
                 else:
                     stmt+=f"{l}"
             else:
