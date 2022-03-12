@@ -155,6 +155,8 @@ class Compiler:
         if ix == len(op):
             element = code
             l = len(element)
+            numLeftParenthesis, numRightParenthesis = self.getNumLeftParenthesis(element), self.getNumRightParenthesis(element)
+            stmt+="("*numLeftParenthesis
             if element[0] == Operator.ONE:
                 if element.count(Operator.ONE) != l:
                     # 컴파일에러
@@ -163,12 +165,16 @@ class Compiler:
                     stmt+=f"{l}"
             else:
                 stmt+=f"{self.var.get(element)}"
+            stmt+=")"*numRightParenthesis
             return stmt
             
         elements = code.split(op[ix])
         l = len(elements)
         for i, element in enumerate(elements):
-            stmt += self.makeAssignStmt(element, ix+1)
+            numLeftParenthesis, numRightParenthesis = self.getNumLeftParenthesis(element), self.getNumRightParenthesis(element)
+            stmt += "(" * numLeftParenthesis
+            stmt += self.makeAssignStmt(element[numLeftParenthesis:len(element)-numRightParenthesis], ix+1)
+            stmt += ")" * numRightParenthesis
             if i < l-1:
                 stmt += Operator.op[ix]
         return stmt
@@ -254,6 +260,20 @@ class Compiler:
             self.ifStmt(code, True)
         if TYPE == Keyword.WHILE:
             self.whileStmt(code)
+    
+    def getNumLeftParenthesis(self, code):
+        for i, v in enumerate(code):
+            if v!="ㄴ":
+                return i
+        print(">> 괄호 위치가 잘못되었습니다!!")
+        raise SyntaxError
+    
+    def getNumRightParenthesis(self, code):
+        for i, v in enumerate(code[::-1]):
+            if v!="ㄹ":
+                return i
+        print(">> 괄호 위치가 잘못되었습니다!!")
+        raise SyntaxError
     
     def isEmptyLine(self, code):
         for i in code:
