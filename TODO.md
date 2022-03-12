@@ -11,7 +11,7 @@
 - [X] 연산자
 - [X] 주석
 - [X] 괄호연산자
-- [ ] break, continue
+- [X] break, continue
 - [ ] 배열
 - [ ] 함수
 - [ ] 컴파일에러 구분
