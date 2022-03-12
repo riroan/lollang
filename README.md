@@ -21,7 +21,7 @@
 
 ## 사용법
 ```
-python main.py --file <lo파일 경로>
+python main.py --file <lo파일 경로> --out <목적 파이썬 파일 경로(기본 : out.py)>
 ```
 
 ## [문법 정보](https://github.com/riroan/lollang/wiki/lollang-Grammar "lollang Grammar")
