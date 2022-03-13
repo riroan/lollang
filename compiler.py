@@ -160,7 +160,8 @@ class Compiler:
         op = Operator.getOp()
         
         if code[:2] == "진짜":
-            stmt+=self.funCall(code, True)
+            name = code[2:]
+            stmt+=f"{self.funVar.get(name)}("
             return stmt
         
         if ix == len(op):
@@ -180,14 +181,22 @@ class Compiler:
             return stmt
             
         elements = code.split(op[ix])
+        print(ix, elements)
         l = len(elements)
         for i, element in enumerate(elements):
+            flag = element[-1] == "."
+            if flag:
+                element = element[:-1]
             numLeftParenthesis, numRightParenthesis = self.getNumLeftParenthesis(element), self.getNumRightParenthesis(element)
+            print(stmt, element, len(element), numLeftParenthesis, numRightParenthesis)
             stmt += "(" * numLeftParenthesis
             stmt += self.makeAssignStmt(element[numLeftParenthesis:len(element)-numRightParenthesis], ix+1)
             stmt += ")" * numRightParenthesis
+            if flag:
+                stmt+=")"
             if i < l-1:
                 stmt += Operator.op[ix]
+        stmt = stmt.replace("(,", "(")
         return stmt
 
     def varAssign(self, code):
