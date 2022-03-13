@@ -22,3 +22,14 @@ class Variable:
     
     def setType(self, name, newType):
         self.var[name][1] = newType
+
+class FunVariable(Variable):
+    def __init__(self):
+        super().__init__()
+    
+    def insert(self, name):
+        try:
+            self.var[name]
+            raise SyntaxError
+        except KeyError:
+            self.var[name] = [f"fun_{len(self.var)}"]

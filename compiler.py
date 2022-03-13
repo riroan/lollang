@@ -1,6 +1,6 @@
 from keywords import Keyword
 from operators import Operator
-from variable import Variable, TYPE
+from variable import Variable, TYPE, FunVariable
 
 class Compiler:
     def __init__(self):
@@ -8,9 +8,11 @@ class Compiler:
         self.stack = list()
         self.out = list()
         
+        self.var = Variable()
+        self.funVar = FunVariable()
+        
         self.valid = False
         self.indent = 0
-        self.var = Variable()
         self.currentLine = 0
         
     def getNewLine(self, elseFlag = False):
@@ -60,6 +62,12 @@ class Compiler:
             return Keyword.ELSE
         if "그니까" in code:
             return Keyword.WHILE
+        if "계속오네" in code:
+            return Keyword.FUN_DECLARE
+        if "나가라 그냥" in code:
+            return Keyword.RETURN
+        if "진짜" in code:
+            return Keyword.FUN_CALL
     
     def removeDeclare(self, elements): # 선언과 동시에 입력, 대입시 "님" 제거
         return [element[:-1] if element[-1] == '님' else element for element in elements]
@@ -151,6 +159,10 @@ class Compiler:
         stmt = ""
         op = Operator.getOp()
         
+        if code[:2] == "진짜":
+            stmt+=self.funCall(code, True)
+            return stmt
+        
         if ix == len(op):
             element = code
             l = len(element)
@@ -238,6 +250,52 @@ class Compiler:
         out += "break"
         self.out.append(out)
     
+    def funDeclare(self, code):
+        out = self.getNewLine()
+        elements = code.split(" ")[:-1]
+        name, args = elements[0], elements[1:]
+        
+        self.funVar.insert(name)
+        
+        out += f"def {self.funVar.get(name)}("
+        for i, arg in enumerate(args):
+            self.var.insert(arg)
+            if i:
+                out+=","
+            out+=self.var.get(arg)
+        out+="):"
+        
+        self.indent += 1
+        self.out.append(out)
+    
+    def funCall(self, code, ret = False): # ret변수 : True -> 함수 호출이 한줄임, False -> 다른 구문 사이에 껴있음
+        out = ""
+        if not ret:
+            out = self.getNewLine()
+        elements = code[2:].split(",")
+        
+        name, args = elements[0], elements[1:]
+        out+=f"{self.funVar.get(name)}("
+        for i, arg in enumerate(args):
+            if i:
+                out+=","
+            out+=self.makeAssignStmt(arg)
+        out+=")"
+        if ret:
+            return out
+        self.out.append(out)
+
+    def returnStmt(self, code):
+        out = self.getNewLine()
+        out += "return"
+        code = code[:code.find("나가라 그냥")].strip()
+        elements = code.split(" ")
+        if len(elements) > 1: # 반환값은 1개 이하여야 함
+            raise SyntaxError
+        if len(elements) == 1:
+            out+=f" {self.makeAssignStmt(elements[0])}"
+        self.out.append(out)
+    
     def compileLine(self, code):
         code = self.checkComment(code)
         if self.isEmptyLine(code):
@@ -271,6 +329,12 @@ class Compiler:
             self.ifStmt(code, True)
         if TYPE == Keyword.WHILE:
             self.whileStmt(code)
+        if TYPE == Keyword.FUN_DECLARE:
+            self.funDeclare(code)
+        if TYPE == Keyword.FUN_CALL:
+            self.funCall(code)
+        if TYPE == Keyword.RETURN:
+            self.returnStmt(code)
     
     def getNumLeftParenthesis(self, code):
         for i, v in enumerate(code):
@@ -294,7 +358,7 @@ class Compiler:
         for ix, code in enumerate(codes):
             self.currentLine = ix + 1
             if ix > 0 and ix < len(codes) - 1:
-                self.compileLine(code.lstrip())
+                self.compileLine(code)
             elif ix == 0 and code != "우리 잘해보죠" or ix == len(codes) - 1 and code != "팀차이 ㅈㅈ":
                 raise SyntaxError
         if self.indent:
@@ -303,7 +367,7 @@ class Compiler:
     def compileFile(self, path, outPath = "out.py"):
         try:
             with open(path, "r", encoding="utf-8") as file:
-                codelines = [i.rstrip() for i in file.readlines()]
+                codelines = [i.strip() for i in file.readlines()]
                 self.compile(codelines)
         except TypeError:
             print(f"{self.currentLine}번째 적이 학살중입니다!!")
