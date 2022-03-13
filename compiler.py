@@ -275,10 +275,8 @@ class Compiler:
         self.indent += 1
         self.out.append(out)
     
-    def funCall(self, code, ret = False): # ret변수 : True -> 함수 호출이 한줄임, False -> 다른 구문 사이에 껴있음
-        out = ""
-        if not ret:
-            out = self.getNewLine()
+    def funCall(self, code): # ret변수 : True -> 함수 호출이 한줄임, False -> 다른 구문 사이에 껴있음
+        out = self.getNewLine()
         elements = code[2:].split(",")
         
         name, args = elements[0], elements[1:]
@@ -287,8 +285,7 @@ class Compiler:
             if i:
                 out+=","
             out+=self.makeAssignStmt(arg)
-        if ret:
-            return out
+        out = out.replace("(,", "(")
         self.out.append(out)
 
     def returnStmt(self, code):
