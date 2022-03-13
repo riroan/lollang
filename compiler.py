@@ -181,14 +181,12 @@ class Compiler:
             return stmt
             
         elements = code.split(op[ix])
-        print(ix, elements)
         l = len(elements)
         for i, element in enumerate(elements):
             flag = element[-1] == "."
             if flag:
                 element = element[:-1]
             numLeftParenthesis, numRightParenthesis = self.getNumLeftParenthesis(element), self.getNumRightParenthesis(element)
-            print(stmt, element, len(element), numLeftParenthesis, numRightParenthesis)
             stmt += "(" * numLeftParenthesis
             stmt += self.makeAssignStmt(element[numLeftParenthesis:len(element)-numRightParenthesis], ix+1)
             stmt += ")" * numRightParenthesis
@@ -289,7 +287,6 @@ class Compiler:
             if i:
                 out+=","
             out+=self.makeAssignStmt(arg)
-        out+=")"
         if ret:
             return out
         self.out.append(out)
