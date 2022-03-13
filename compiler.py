@@ -380,8 +380,6 @@ class Compiler:
             print(f"{self.currentLine}번째 적을 도저히 막을 수 없습니다!!")
         except KeyError:
             print(f"{self.currentLine}번째 적이 전장을 지배하고 있습니다!!")
-        except ZeroDivisionError:
-            print(f"{self.currentLine}번째 적이 전장의 화신입니다!!")
         except FileNotFoundError:
             print("서버에 연결할 수 없습니다.")
         else:
@@ -391,6 +389,8 @@ class Compiler:
     def run(self, path = "out.py"):
         try:
             exec(open(path).read())
+        except ZeroDivisionError:
+            print(f"적이 전장의 화신입니다!!")
         except:
             print("소환사 한명이 게임을 종료했습니다.")
 
