@@ -391,7 +391,7 @@ class Compiler:
             exec(open(path).read())
         except ZeroDivisionError:
             print(f"적이 전장의 화신입니다!!")
-        except:
+        except Exception:
             print("소환사 한명이 게임을 종료했습니다.")
 
 
