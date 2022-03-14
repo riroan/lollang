@@ -201,7 +201,7 @@ class Compiler:
         elements = code.split(" ")
         elements = [element for element in elements if element != ""]
         self.varCheck([elements[0]])
-        variable = self.removeDeclare([elements[0]])[0]
+        variable = self.util.removeDeclare([elements[0]])[0]
         out += f"{self.var.get(variable)} = "
         out += self.makeAssignStmt(elements[-1])
         self.out.append(out)
