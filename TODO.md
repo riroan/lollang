@@ -18,4 +18,4 @@
 - [ ] 배열
 - [ ] try-catch문
 - [X] unit-test
-- [ ] CI
+- [X] CI
