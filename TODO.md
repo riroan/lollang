@@ -17,5 +17,5 @@
 
 - [ ] 배열
 - [ ] try-catch문
-- [ ] unit-test
+- [X] unit-test
 - [ ] CI
