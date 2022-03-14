@@ -6,6 +6,7 @@
 ![Lines of code](https://img.shields.io/tokei/lines/github/riroan/lollang?color=green)
 ![GitHub last commit](https://img.shields.io/github/last-commit/riroan/lollang)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/riroan/lollang.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/riroan/lollang/alerts/)
+<img src="https://img.shields.io/badge/language-python-blue" />
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/riroan/lollang?style=social)
 
@@ -15,7 +16,7 @@
 
 롤의 각종 유행어(?)들을 조합해 만들었습니다.
 
-롤랭을 파이썬코드로 번역하여 파이썬파일을 실행하는 방식입니다.
+고급언어(롤랭)을 저급언어(파이썬)으로 번역하는 컴파일러입니다.
 
 변수명을 챔피언 이름으로 하면 재밌습니다.
 
@@ -23,12 +24,19 @@
 
 기능 추가/개선 사항, 버그 등은 이슈에 남겨주세요.
 
+
+## 롤랭을 웹에서 만나보세요!
+
+### [롤랭 웹 컴파일러](https://playlollang.wonj.in/)
+
+*Created by [wonjinYi](https://github.com/wonjinYi)* [(repo)](https://github.com/wonjinYi/lollang-playground)
+
 ## 사용법
 ```
 python main.py --file <lo파일 경로> --out <목적 파이썬 파일 경로(기본 : out.py)>
 ```
 
-## [문법 정보](https://github.com/riroan/lollang/wiki/lollang-Grammar "lollang Grammar")
+## [문법 정보](https://github.com/riroan/lollang/wiki "lollang Grammar")
 
 
 ## [TODO List](TODO.md "todo list")
