@@ -1,6 +1,7 @@
 from keywords import Keyword
 from operators import Operator
 from variable import Variable, TYPE, FunVariable
+from utility import Utility
 
 class Compiler:
     def __init__(self):
@@ -8,6 +9,7 @@ class Compiler:
         self.stack = list()
         self.out = list()
         
+        self.util = Utility()
         self.var = Variable()
         self.funVar = FunVariable()
         
@@ -68,9 +70,6 @@ class Compiler:
             return Keyword.RETURN
         if "진짜" in code:
             return Keyword.FUN_CALL
-    
-    def removeDeclare(self, elements): # 선언과 동시에 입력, 대입시 "님" 제거
-        return [element[:-1] if element[-1] == '님' else element for element in elements]
         
     def varCheck(self, elements):
         for element in elements:
@@ -95,7 +94,7 @@ class Compiler:
         
         self.varCheck(elements)
             
-        elements = self.removeDeclare(elements)
+        elements = self.util.removeDeclare(elements)
         for element in elements:
             if self.var.getType(element) == TYPE.INT and strFlag:
                 self.var.setType(element, TYPE.STR)
@@ -167,7 +166,7 @@ class Compiler:
         if ix == len(op):
             element = code
             l = len(element)
-            numLeftParenthesis, numRightParenthesis = self.getNumLeftParenthesis(element), self.getNumRightParenthesis(element)
+            numLeftParenthesis, numRightParenthesis = self.util.getNumLeftParenthesis(element), self.util.getNumRightParenthesis(element)
             stmt+="("*numLeftParenthesis
             if element[0] == Operator.ONE:
                 if element.count(Operator.ONE) != l:
@@ -186,7 +185,7 @@ class Compiler:
             flag = element[-1] == "."
             if flag:
                 element = element[:-1]
-            numLeftParenthesis, numRightParenthesis = self.getNumLeftParenthesis(element), self.getNumRightParenthesis(element)
+            numLeftParenthesis, numRightParenthesis = self.util.getNumLeftParenthesis(element), self.util.getNumRightParenthesis(element)
             stmt += "(" * numLeftParenthesis
             stmt += self.makeAssignStmt(element[numLeftParenthesis:len(element)-numRightParenthesis], ix+1)
             stmt += ")" * numRightParenthesis
@@ -301,7 +300,7 @@ class Compiler:
     
     def compileLine(self, code):
         code = self.checkComment(code)
-        if self.isEmptyLine(code):
+        if self.util.isEmptyLine(code):
             return
         TYPE = self.getType(code)
         if TYPE == Keyword.CONTINUE:
@@ -338,24 +337,6 @@ class Compiler:
             self.funCall(code)
         if TYPE == Keyword.RETURN:
             self.returnStmt(code)
-    
-    def getNumLeftParenthesis(self, code):
-        for i, v in enumerate(code):
-            if v!="ㄴ":
-                return i
-        raise ValueError
-    
-    def getNumRightParenthesis(self, code):
-        for i, v in enumerate(code[::-1]):
-            if v!="ㄹ":
-                return i
-        raise ValueError
-    
-    def isEmptyLine(self, code):
-        for i in code:
-            if i != " ":
-                return False
-        return True
     
     def compile(self, codes):
         for ix, code in enumerate(codes):
