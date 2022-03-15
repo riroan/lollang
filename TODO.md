@@ -19,3 +19,4 @@
 - [ ] try-catch문
 - [X] unit-test
 - [X] CI
+- [ ] 키워드 우선순위
