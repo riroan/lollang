@@ -6,6 +6,7 @@
 ![Lines of code](https://img.shields.io/tokei/lines/github/riroan/lollang?color=green)
 ![GitHub last commit](https://img.shields.io/github/last-commit/riroan/lollang)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/riroan/lollang.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/riroan/lollang/alerts/)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/riroan/lollang/Python%20application)
 <img src="https://img.shields.io/badge/language-python-blue" />
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/riroan/lollang?style=social)
